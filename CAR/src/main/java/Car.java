@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
@@ -67,7 +68,8 @@ public class Car {
 
         data_JSON.put("SENSOR_TOPICS", getAllSensorTopics());
 //        data_JSON.put("CONSUMER_TOPICS", topic);
-// TODO: car will know some consumer topics .. now, we have scope for on demand too with rabbitMQ..
+        // TODO: car will know some consumer topics .. now, we have scope for on demand too with rabbitMQ..
+        //TODO: send the offsets to RSU here...
         String msgStr = data_JSON.toString();
         initSender.sendMessage(msgStr);
 
@@ -108,7 +110,7 @@ public class Car {
                 System.out.println(message_json.get("TYPE"));
 
                 System.out.println(" [x] Received '" + message + "'");
-            } catch (JSONException e) {
+            } catch (JSONException | TimeoutException e) {
                 e.printStackTrace();
             }
         };
@@ -117,20 +119,37 @@ public class Car {
 
     }
 
-    private void handleInit(JSONObject message_json) throws JSONException {
+    private void handleInit(JSONObject message_json) throws JSONException, IOException, TimeoutException {
         Thread t = new Thread(this::produceSensorData);
         t.start();
 
         System.out.println(message_json.toString());
         JSONArray consumableTopics = (JSONArray) message_json.get("CONSUMABLE_TOPICS");
 
-        for (int i = 0; i < consumableTopics.length(); i++){
-
-            //TODO: call consumableDataReceiver for each of these and put them in a map , if consumableDataReceiver already exists, change the address for RSU and continue consuming with offset..
-        }
-
         System.out.println(consumableTopics);
         System.out.println("line 110");
+        System.out.println(consumableTopics.length());
+        for (int i = 0; i < consumableTopics.length(); i++){
+            //use ConsumableDataReceiver class
+//            static HashMap<String, RabbitMQReceive> consumableTopicDataReceivers;
+            String topic = (String) consumableTopics.get(i);
+            System.out.println(consumableDataReceivers);
+            System.out.println(topic);
+            if(consumableDataReceivers.containsKey(topic)){
+                System.out.println("line 137");
+                ConsumableDataReceiver consumableDataReceiver = consumableDataReceivers.get(topic);
+                consumableDataReceiver.updateRSUAddress(carProps.nearestRSUAddress);                                        //TODO: modify this logic to correction according to devices used..
+                consumableDataReceiver.initiateFetching();
+                consumableDataReceivers.replace(topic, consumableDataReceiver);
+            }
+            else{
+                System.out.println("line 140");
+                ConsumableDataReceiver consumableDataReceiver = new ConsumableDataReceiver(topic, carProps.nearestRSUAddress);
+                consumableDataReceiver.initiateFetching();
+                consumableDataReceivers.put(topic,consumableDataReceiver);
+            }
+        }
+
 
     }
 
@@ -158,5 +177,7 @@ public class Car {
             }
         }
     }
+
+    static HashMap<String, ConsumableDataReceiver> consumableDataReceivers = new HashMap<>();
 
 }

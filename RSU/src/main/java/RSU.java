@@ -5,10 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
@@ -49,7 +47,6 @@ public class RSU {
         isAccessToSensorDataByTopicsPermissible.replace(topic, true);
     }
 
-    //TODO: see if making this return a boolean is worth it!
     public static void updateSensorDataOnTopic(String topic, ArrayList<String> newData){
         isAccessToSensorDataByTopicsPermissible.replace(topic, false);
         acquireAccessOnTopic(topic);
@@ -60,7 +57,6 @@ public class RSU {
         isAccessToSensorDataByTopicsPermissible.replace(topic, true);
     }
 
-    //TODO: add scheduled producers here that send the sensorData stuff....
     public static void main(String[] args) throws IOException, TimeoutException {
 
         Thread t = new Thread(()-> {
@@ -85,7 +81,11 @@ public class RSU {
 
             switch(message_json.get("TYPE").toString()){
                 case "INIT":
-                    handleInit();
+                    try {
+                        handleInit();
+                    } catch (TimeoutException e) {
+                        e.printStackTrace();
+                    }
                     try {
                         startReceiversOnTopicsAndStartProducers((JSONArray) message_json.get("SENSOR_TOPICS"));
                     } catch (TimeoutException e) {
@@ -94,9 +94,6 @@ public class RSU {
                     break;
             }
 
-//            System.out.println(message_json.get("TYPE"));
-
-//            System.out.println(" [x] Received '" + message + "'");
         };
 
         RabbitMQReceive receiver = new RabbitMQReceive(initToRSU);
@@ -123,16 +120,25 @@ public class RSU {
 
     }
 
-    private static void handleInit() {
+    private static void handleInit() throws IOException, TimeoutException {
         RabbitMQSend initSender = new RabbitMQSend(initToCar);
         JSONObject data_JSON = new JSONObject();
         data_JSON.put("DATA", "");
         data_JSON.put("TYPE", "INIT");
         data_JSON.put("CONSUMABLE_TOPICS", consumableTopics);
         initSender.sendMessage(data_JSON.toString());
+
+        startSendersOnConsumableTopics();
     }
 
-    static JSONArray consumableTopics = new JSONArray(Consumer.consumableDataByTopics.keySet());
+    public static void startSendersOnConsumableTopics() throws IOException, TimeoutException {
+        for(int i = 0; i< consumableTopics.length(); i++){
+            ConsumableDataSender sender = new ConsumableDataSender((String) consumableTopics.get(i));
+            sender.initiateSenderByStartingListener();
+        }
+    }
+
+    static JSONArray consumableTopics = new JSONArray(new String[]{"POSE_LOCALIZED"});
     static String initToRSU = "INIT-TO-RSU";
     static String initToCar = "INIT-TO-CAR";
 

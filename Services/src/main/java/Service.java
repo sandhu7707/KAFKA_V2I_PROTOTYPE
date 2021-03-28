@@ -40,7 +40,7 @@ public class Service {
     }
 
     public static void startProducers() {
-        File dir = new File("src/main/java/ProducableData");
+        File dir = new File("Services/src/main/java/ProducableData");
         System.out.println(Arrays.toString(dir.listFiles()));
 
         if (dir.isDirectory()) {

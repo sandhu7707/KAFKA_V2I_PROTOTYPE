@@ -63,8 +63,8 @@ public class Consumer {
 
             for (ConsumerRecord<String, String> record : records) {
                 newData.put(record.offset(), record.value());
-                System.out.println(record.offset());
-                System.out.println(record.value());
+//                System.out.println(record.offset());
+//                System.out.println(record.value());
             }
             if(consumableDataByTopics.containsKey(topic)){
                 HashMap<Long, String> dataOnTopic = consumableDataByTopics.get(topic);

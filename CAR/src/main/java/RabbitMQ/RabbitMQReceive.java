@@ -22,6 +22,10 @@ public class RabbitMQReceive {
         this.receiverAddress = receiverAddress;
     }
 
+    public String getReceiverAddress(){
+        return this.receiverAddress;
+    }
+
     public void receive(DeliverCallback deliverCallback) throws IOException, TimeoutException {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(receiverAddress);
