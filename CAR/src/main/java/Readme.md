@@ -1,1 +1,0 @@
-* RSU addresses can be changed in CarProps class
