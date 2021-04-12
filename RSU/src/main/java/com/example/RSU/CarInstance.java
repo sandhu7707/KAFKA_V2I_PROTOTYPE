@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 
 public class CarInstance {
 
-    String carId;
+    public String carId;
     JSONArray topics;
     String RSU_TO_CAR_Q;
     boolean initFinished;

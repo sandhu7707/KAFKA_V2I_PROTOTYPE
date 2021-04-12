@@ -26,5 +26,6 @@ public class MessageProps {
     public static final String CONSUMABLE_TOPICS = "CONSUMABLE_TOPICS";
     public static final String SIMULATED_DROP_RETRANSMISSION_ATTEMPT = "SIMULATED_DROP_RETRANSMISSION_ATTEMPT";
     public static final String RECEIVED_ON_RSU_AT = "RECEIVED_ON_RSU_AT";
-    public static final String SENT_FROM_RSU_AT = "RECEIVED_ON_RSU_AT";
+    public static final String SENT_FROM_RSU_AT = "SENT_FROM_RSU_AT";
+    public static final String RSU_TO_EVALUATION_INDEXING_PREFIX = "RSU_TO_EVALUATION_INDEXING_PREFIX";
 }

@@ -1,3 +1,8 @@
+import Model.MessageProps;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.MessageProperties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -11,6 +16,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 
 public class Consumer {
 
@@ -30,45 +36,63 @@ public class Consumer {
         createFile(logFileName);
 
         FileWriter writer = new FileWriter(logFileName);
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("localhost");
+        try (Connection connection = factory.newConnection();
+             Channel channel = connection.createChannel()) {
+            while (true) {
+    //            System.out.println("consumer started on" + topic);
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+    //            long currentMillis = System.currentTimeMillis();
+                for (ConsumerRecord<String, String> record : records) {
 
-        while (true) {
-//            System.out.println("consumer started on" + topic);
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-//            long currentMillis = System.currentTimeMillis();
-            for (ConsumerRecord<String, String> record : records) {
+                    String message = record.value();
 
-//                JSONObject messageJSON = new JSONObject(record.value());
-//
-//                JSONArray values = (JSONArray) messageJSON.get("DATA");
-//                int values_length = values.length();
-//
-//                for (int i =0 ; i< values_length; i ++) {
-////                    Object val = values.get(i);                   // if we need just values..
-//                    writer.append(record.value());
-//                    values_length--;
-//                    if (values_length != 0) {
-//                        writer.append(",");
-//                    }
-//                }
-//
-//                if((messageJSON.get("TYPE")).equals("HEAD"))
-//                    writer.append(",producerToConsumerTimeInMilliseconds\n");
-//                else{
-//                    long timestampOnProducer = (long) messageJSON.get("PRODUCER_TIMESTAMP");
-//                    System.out.println("difference in time: " + (currentMillis - timestampOnProducer));
-//                    writer.append(",");
-//                    writer.append(Long.toString(currentMillis - timestampOnProducer)).append("\n");
-//                }
+                    System.out.println("received a message -> " + message);
 
-                System.out.printf("offset = %d, key = %s", record.offset(), record.key());
-                System.out.println();
-                System.out.println("value: " + record.value());
-                Thread.sleep(100);
+                    JSONObject messageJSON = new JSONObject(message);
+    //
+//                    String values = (String) messageJSON.get("DATA");
 
-//            writer.close();                                                                                                          //todo: check posible issues with this and do we need to write this stuff ?
-                //todo: check kafka monitoring tools ...
-            }
+                    String carId = (String) messageJSON.get(MessageProps.CAR_ID);
+                    topic = (String) messageJSON.get(MessageProps.TOPIC);
+
+                    messageJSON.put(MessageProps.RECEIVED_BY_SERVICE_AT, System.currentTimeMillis());
+
+                    sendMessageOnEvaluationModule(carId, topic, messageJSON.toString(), channel);
+
+                    writer.append(messageJSON.toString());
+                    writer.append("\n");
+
+                    System.out.printf("offset = %d, key = %s", record.offset(), record.key());
+                    System.out.println();
+                    System.out.println("value: " + record.value());
+                    Thread.sleep(5);
+
+
+//                    writer.close();
+
+                }
+                }
+        } catch (TimeoutException e) {
+            e.printStackTrace();
         }
+    }
+
+    private static void sendMessageOnEvaluationModule(String carId, String topic, String message, Channel channel) throws IOException {
+
+        String qName = getQNameServiceToEvaluationFor(carId,topic);
+
+        channel.queueDeclare(qName, true, false, false, null);
+
+        channel.basicPublish("", qName,
+                MessageProperties.PERSISTENT_TEXT_PLAIN,
+                message.getBytes("UTF-8"));
+
+    }
+
+    private static String getQNameServiceToEvaluationFor(String carId, String topic) {
+        return MessageProps.SERVICE_TO_EVALUATION + "_" + carId + "_" + topic;
     }
 
     static void createFile(String logFileName) {

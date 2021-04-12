@@ -95,7 +95,7 @@ public class RetransmissionsByTopics {
 
         });
         t.start();
-        System.out.println("fetched retransmission data -> " + data);
+//        System.out.println("fetched retransmission data -> " + data);
         return data;
     }
 }

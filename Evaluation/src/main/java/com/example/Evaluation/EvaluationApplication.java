@@ -29,7 +29,7 @@ public class EvaluationApplication {
 			try {
 				carInstance.StartCarInstance( 0.005, mode, messagePriority, numberOfTopics, messageSize);
 
-			} catch (JSONException | TimeoutException | IOException e) {
+			} catch (JSONException | TimeoutException | IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
 		});

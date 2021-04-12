@@ -63,8 +63,7 @@ public class TransmittedSensorData {
                 else{
                     data.put(message_id, message);
                 }
-                System.out.println("updates in transmitted data -> " + message);
-
+//                System.out.println("updates in transmitted data -> " + message);
 
             while(true){
                 try {

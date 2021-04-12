@@ -33,7 +33,7 @@ public class CarInstance {
         return topics;
     }
 
-    void StartCarInstance(double dropConstant, String mode, int messagePriority, int numberOfTopics, int messageSize) throws JSONException, IOException, TimeoutException {
+    void StartCarInstance(double dropConstant, String mode, int messagePriority, int numberOfTopics, int messageSize) throws JSONException, IOException, TimeoutException, InterruptedException {
         this.dropConstant = dropConstant;
         this.messageSimulator = new SimulateMessages(messageSize);
         JSONArray topics = getTopicNames(numberOfTopics);

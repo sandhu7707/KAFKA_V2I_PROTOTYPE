@@ -286,15 +286,15 @@ public class Car {
 
 
             channel.addConfirmListener((sequenceNumber, multiple) -> {
-                System.out.println(carProps.consecutiveSuccessfulMessagesBetweenDrops);
-                System.out.println(consecutiveConfirmsCounter.get());
+//                System.out.println(carProps.consecutiveSuccessfulMessagesBetweenDrops);
+//                System.out.println(consecutiveConfirmsCounter.get());
                 ArrayList<String> retransmissions = new ArrayList<>();
                 if(!multiple) {
                     consecutiveConfirmsCounter.getAndIncrement();
                     if (carProps.consecutiveSuccessfulMessagesBetweenDrops <= consecutiveConfirmsCounter.get()) {
                         try {
                             JSONObject message_json = new JSONObject(outstandingConfirms.get(sequenceNumber));
-                            System.out.println("added to retransmission -> " + message_json.toString());
+//                            System.out.println("added to retransmission -> " + message_json.toString());
                             message_json.put(MessageProps.SIMULATED_DROP_RETRANSMISSION_ATTEMPT, ((int)message_json.get(MessageProps.SIMULATED_DROP_RETRANSMISSION_ATTEMPT) + 1));
                             retransmissions.add(message_json.toString());
                             outstandingConfirms.remove(sequenceNumber);
@@ -311,7 +311,7 @@ public class Car {
                         for(int i = 0; consecutiveConfirmsCounter.get() - i >= carProps.consecutiveSuccessfulMessagesBetweenDrops; i++){
                             try {
                                 JSONObject message_json = new JSONObject(outstandingConfirms.get(sequenceNumber-i));
-                                System.out.println("added to retransmission -> " + message_json.toString());
+//                                System.out.println("added to retransmission -> " + message_json.toString());
                                 message_json.put(MessageProps.SIMULATED_DROP_RETRANSMISSION_ATTEMPT, ((int)message_json.get(MessageProps.SIMULATED_DROP_RETRANSMISSION_ATTEMPT) + 1));
                                 retransmissions.add(message_json.toString());
                                 outstandingConfirms.remove(sequenceNumber - i);
@@ -340,7 +340,7 @@ public class Car {
                         try {
                             JSONObject message_json = new JSONObject(outstandingConfirms.get(sequenceNumber));
                             message_json.put(MessageProps.REAL_DROP_RETRANSMISSION_ATTEMPT, ((int)message_json.get(MessageProps.REAL_DROP_RETRANSMISSION_ATTEMPT) + 1));
-                            System.out.println("added to retransmission -> " + message_json.toString());
+//                            System.out.println("added to retransmission -> " + message_json.toString());
                             retransmissions.add(message_json.toString());
                             outstandingConfirms.remove(sequenceNumber);
                             consecutiveConfirmsCounter.getAndSet(0);
@@ -355,7 +355,7 @@ public class Car {
                             try {
                                 JSONObject message_json = new JSONObject(outstandingConfirms.get(sequenceNumber-i));
                                 message_json.put(MessageProps.REAL_DROP_RETRANSMISSION_ATTEMPT, ((int)message_json.get(MessageProps.REAL_DROP_RETRANSMISSION_ATTEMPT) + 1));
-                                System.out.println("added to retransmission -> " + message_json.toString());
+//                                System.out.println("added to retransmission -> " + message_json.toString());
                                 retransmissions.add(message_json.toString());
                                 outstandingConfirms.remove(sequenceNumber - i);
                                 consecutiveConfirmsCounter.getAndSet(0);

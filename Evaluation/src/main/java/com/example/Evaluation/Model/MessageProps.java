@@ -26,5 +26,14 @@ public class MessageProps {
     public static final String CONSECUTIVE_SUCCESSFUL_MESSAGES = "CONSECUTIVE_SUCCESSFUL_MESSAGES";
     public static final String CAR_TO_EVALUATION_INDEXING_PREFIX = "CAR_TO_EVALUATION_INDEXING_PREFIX";
     public static final String RSU_TO_EVALUATION_INDEXING_PREFIX = "RSU_TO_EVALUATION_INDEXING_PREFIX";
+    public static final String RECEIVED_BY_SERVICE_AT = "RECEIVED_BY_SERVICE_AT";
+    public static final String SERVICE_TO_EVALUATION = "SERVICE_TO_EVALUATION";
+    public static final String RECEIVED_ON_RSU_AT = "RECEIVED_ON_RSU_AT";
+    public static final String SENT_FROM_RSU_AT = "SENT_FROM_RSU_AT";
+    public static final String TIME_CAR_TO_RSU = "TIME_CAR_TO_RSU";
+    public static final String SIMULATED_DROP_RETRANSMISSION_ATTEMPT = "SIMULATED_DROP_RETRANSMISSION_ATTEMPT";
+    public static final String REAL_DROP_RETRANSMISSION_ATTEMPT = "REAL_DROP_RETRANSMISSION_ATTEMPT";
+    public static final String SENT_FROM_CAR_AT = "SENT_FROM_CAR_AT";
+    public static final String TIME_RSU_TO_SERVICE = "TIME_RSU_TO_SERVICE";
 }
 
